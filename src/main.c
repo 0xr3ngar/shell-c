@@ -1,64 +1,17 @@
-#include <errno.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include "commands.h"
+#include "input.h"
+#include "signals.h"
+#include "tokenizer.h"
 
-static volatile sig_atomic_t stop = 0;
+// TODO: tokenize
+// 1. Trim leading/trailing whitespace
 
-void on_sigint(int signum) {
-        (void)signum;
-        stop = 1;
-        printf("\n");
-}
+// 2. Scan characters, building tokens
 
-char *get_input(FILE *fp, size_t size) {
-        char *str;
-        int ch;
-        size_t len = 0;
-        str = realloc(NULL, sizeof(*str) * size);
-        if (!str)
-                return str;
-
-        while (EOF != (ch = fgetc(fp)) && ch != '\n') {
-                str[len++] = ch;
-                if (len == size) {
-                        str = realloc(str, sizeof(*str) * (size += 16));
-                        if (!str)
-                                return str;
-                }
-        }
-
-        if (ch == EOF && errno == EINTR && stop) {
-                free(str);
-                return NULL;
-        }
-
-        if (ch == EOF && len == 0) {
-                free(str);
-                return NULL;
-        }
-
-        str[len++] = '\0';
-
-        return realloc(str, sizeof(*str) * len);
-}
-
-typedef enum { CMD_EXIT, CMD_COUNT, CMD_UNKNOWN = -1 } Command;
-
-static const char *COMMANDS[CMD_COUNT] = {"exit"};
-
-static Command parse_command(char *s) {
-        if (s == NULL) {
-                return CMD_UNKNOWN;
-        }
-        for (int i = 0; i < CMD_COUNT; i++) {
-                if (strcmp(s, COMMANDS[i]) == 0) {
-                        return (Command)i;
-                }
-        }
-        return CMD_UNKNOWN;
-}
+// 3. Return: command = first token, args = remaining tokens in array
 
 int main(void) {
         setbuf(stdout, NULL);
@@ -77,7 +30,7 @@ int main(void) {
 
                 printf("$ ");
 
-                userInput = get_input(stdin, 20);
+                userInput = getInput(stdin, 200);
 
                 if (userInput == NULL || stop) {
                         if (userInput)
@@ -90,11 +43,30 @@ int main(void) {
                         continue;
                 }
 
-                Command cmd = parse_command(userInput);
+                char **tokens = getTokens(userInput);
 
+                //          if tokens.count == 0 : pc = {
+                //         kind : CMD_UNKNOWN,
+                //         raw : line,
+                //         cmd : null,
+                //         args : null,
+                //         argc : 0
+                // } else : pc = {
+                //         kind : parseCommand(tokens[0]),
+                //         raw : line,
+                //         cmd : tokens[0],
+                //         args : tokens[1..],
+                //         argc : tokens.count - 1
+                // }
+
+                RootCommand cmd = parseCommand(userInput); // Temporary until tokenization is done
                 switch (cmd) {
                 case CMD_EXIT:
                         stop = 1;
+                        break;
+                case CMD_ECHO:
+                        printf("str: %s, \n", userInput);
+                        printEcho(userInput);
                         break;
                 default:
                         printf("%s: command not found\n", userInput);
