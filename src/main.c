@@ -1,5 +1,15 @@
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
+
+static volatile sig_atomic_t stop = 0;
+
+void on_sigint(int signum) {
+  (void)signum;
+  stop = 1;
+  printf("\n");
+}
 
 char *get_input(FILE *fp, size_t size) {
   char *str;
@@ -17,6 +27,17 @@ char *get_input(FILE *fp, size_t size) {
         return str;
     }
   }
+
+  if (ch == EOF && errno == EINTR && stop) {
+    free(str);
+    return NULL;
+  }
+
+  if (ch == EOF && len == 0) {
+    free(str);
+    return NULL;
+  }
+
   str[len++] = '\0';
 
   return realloc(str, sizeof(*str) * len);
@@ -25,14 +46,36 @@ char *get_input(FILE *fp, size_t size) {
 int main(void) {
   setbuf(stdout, NULL);
 
-  char *userInput;
+  struct sigaction sa;
+  sa.sa_handler = on_sigint;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  
+  if (sigaction(SIGINT, &sa, NULL) == -1) {
+    return 1;
+  }
 
-  printf("$ ");
+  while (!stop) {
+    char *userInput;
 
-  userInput = get_input(stdin, 20);
+    printf("$ ");
 
-  printf("%s: command not found\n", userInput);
+    userInput = get_input(stdin, 20);
 
-  free(userInput);
+    if (userInput == NULL || stop) {
+      if (userInput) free(userInput);
+      break;
+    }
+
+    if (userInput[0] == '\0') {
+      free(userInput);
+      continue;
+    }
+
+    printf("%s: command not found\n", userInput);
+
+    free(userInput);
+  }
+
   return 0;
 }
