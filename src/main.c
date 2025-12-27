@@ -1,10 +1,10 @@
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "commands.h"
 #include "input.h"
 #include "signals.h"
 #include "tokenizer.h"
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 // TODO: tokenize
 // 1. Trim leading/trailing whitespace
@@ -43,7 +43,8 @@ int main(void) {
                         continue;
                 }
 
-                char **tokens = getTokens(userInput);
+                Tokens tokens = getTokens(userInput);
+
 
                 //          if tokens.count == 0 : pc = {
                 //         kind : CMD_UNKNOWN,
@@ -59,7 +60,7 @@ int main(void) {
                 //         argc : tokens.count - 1
                 // }
 
-                RootCommand cmd = parseCommand(userInput); // Temporary until tokenization is done
+                RootCommand cmd = parseCommand(userInput);
                 switch (cmd) {
                 case CMD_EXIT:
                         stop = 1;
