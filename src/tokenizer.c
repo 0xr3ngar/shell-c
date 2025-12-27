@@ -98,10 +98,9 @@ size_t split_whitespace(const char *s, char ***outTokens) {
 Tokens getTokens(char *userInput) {
         // first step clear white spaces and find a character
         char *trimmedInput = trim(userInput);
-        printf("%s \n", trimmedInput);
 
         char **tok = NULL;
-        size_t n = split_whitespace(userInput, &tok);
+        size_t n = split_whitespace(trimmedInput, &tok);
 
         Tokens allTokens = {.tokenCount = n, .tokens = tok};
 
