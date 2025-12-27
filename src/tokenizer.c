@@ -96,7 +96,6 @@ size_t split_whitespace(const char *s, char ***outTokens) {
 
 // example input "   echo "
 Tokens getTokens(char *userInput) {
-        // first step clear white spaces and find a character
         char *trimmedInput = trim(userInput);
 
         char **tok = NULL;

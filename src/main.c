@@ -6,13 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// TODO: tokenize
-// 1. Trim leading/trailing whitespace
-
-// 2. Scan characters, building tokens
-
-// 3. Return: command = first token, args = remaining tokens in array
-
 int main(void) {
         setbuf(stdout, NULL);
 
@@ -43,31 +36,34 @@ int main(void) {
                         continue;
                 }
 
-                Tokens tokens = getTokens(userInput);
+                Tokens tok = getTokens(userInput);
 
+                char **args = malloc(sizeof(char *) * (tok.tokenCount - 1));
+                if (!args) {
+                        free(userInput);
+                        free(args);
+                        freeTokens(&tok);
+                        return 1;
+                }
+                for (int i = 1; i < tok.tokenCount; i++) {
+                        args[i - 1] = tok.tokens[i];
+                }
 
-                //          if tokens.count == 0 : pc = {
-                //         kind : CMD_UNKNOWN,
-                //         raw : line,
-                //         cmd : null,
-                //         args : null,
-                //         argc : 0
-                // } else : pc = {
-                //         kind : parseCommand(tokens[0]),
-                //         raw : line,
-                //         cmd : tokens[0],
-                //         args : tokens[1..],
-                //         argc : tokens.count - 1
-                // }
+                ParsedCommand pc = {
+                    .kind = tok.tokenCount == 0 ? CMD_UNKNOWN
+                                                : parseCommand(tok.tokens[0]),
+                    .raw = userInput,
+                    .cmd = tok.tokenCount == 0 ? NULL : tok.tokens[0],
+                    .argc = tok.tokenCount == 0 ? 0 : tok.tokenCount - 1,
+                    .args = args,
+                };
 
-                RootCommand cmd = parseCommand(userInput);
-                switch (cmd) {
+                switch (pc.kind) {
                 case CMD_EXIT:
                         stop = 1;
                         break;
                 case CMD_ECHO:
-                        printf("str: %s, \n", userInput);
-                        printEcho(userInput);
+                        printEcho(pc.args, pc.argc);
                         break;
                 default:
                         printf("%s: command not found\n", userInput);
@@ -75,6 +71,8 @@ int main(void) {
                 }
 
                 free(userInput);
+                freeTokens(&tok);
+                free(args);
         }
 
         return 0;

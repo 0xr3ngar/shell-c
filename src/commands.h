@@ -14,7 +14,6 @@ typedef struct {
 } ParsedCommand;
 
 RootCommand parseCommand(char *s);
-void printEcho(char *cmd);
+void printEcho(char **cmds, size_t size);
 
 #endif
-

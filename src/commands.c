@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <string.h>
 #include "commands.h"
 #include "tokenizer.h"
+#include <stdio.h>
+#include <string.h>
 
 static const char *COMMANDS[CMD_COUNT] = {"exit", "echo"};
 
@@ -17,12 +17,9 @@ RootCommand parseCommand(char *s) {
         return CMD_UNKNOWN;
 }
 
-void printEcho(char *cmd) {
-        const char *command_copy = view_from_index(cmd, 4);
-
-        if (command_copy) {
-                printf("copy: %s", command_copy);
-                printf("\n");
+void printEcho(char **cmds, size_t size) {
+        for (int i = 0; i < size; i++) {
+                printf("%s ", cmds[i]);
         }
+        printf("\n");
 }
-
