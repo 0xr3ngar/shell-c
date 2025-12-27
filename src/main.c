@@ -65,6 +65,17 @@ int main(void) {
                 case CMD_ECHO:
                         printEcho(pc.args, pc.argc);
                         break;
+                case CMD_TYPE: {
+                        RootCommand arg2 = parseCommand(tok.tokens[1]);
+                        if (arg2 == CMD_UNKNOWN) {
+                                printf("%s: command not found\n",
+                                       tok.tokens[1]);
+                                break;
+                        }
+
+                        printf("%s is a shell builtin\n", tok.tokens[1]);
+                        break;
+                }
                 default:
                         printf("%s: command not found\n", userInput);
                         break;

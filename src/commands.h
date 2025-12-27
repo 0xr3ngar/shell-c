@@ -3,7 +3,13 @@
 
 #include <stddef.h>
 
-typedef enum { CMD_EXIT, CMD_ECHO, CMD_COUNT, CMD_UNKNOWN = -1 } RootCommand;
+typedef enum {
+        CMD_EXIT,
+        CMD_ECHO,
+        CMD_TYPE,
+        CMD_COUNT,
+        CMD_UNKNOWN = -1
+} RootCommand;
 
 typedef struct {
         RootCommand kind;

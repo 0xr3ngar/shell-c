@@ -1,9 +1,8 @@
 #include "commands.h"
-#include "tokenizer.h"
 #include <stdio.h>
 #include <string.h>
 
-static const char *COMMANDS[CMD_COUNT] = {"exit", "echo"};
+static const char *COMMANDS[CMD_COUNT] = {"exit", "echo", "type"};
 
 RootCommand parseCommand(char *s) {
         if (s == NULL) {
