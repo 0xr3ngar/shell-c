@@ -68,8 +68,7 @@ int main(void) {
                 case CMD_TYPE: {
                         RootCommand arg2 = parseCommand(tok.tokens[1]);
                         if (arg2 == CMD_UNKNOWN) {
-                                printf("%s: command not found\n",
-                                       tok.tokens[1]);
+                                printf("%s: not found\n", tok.tokens[1]);
                                 break;
                         }
 
