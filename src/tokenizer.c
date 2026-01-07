@@ -4,14 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *concat(const char *s1, const char *s2) {
-        char *result =
-            malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
-        strcpy(result, s1);
-        strcat(result, s2);
-        return result;
-}
-
 const char *view_from_index(const char *src, size_t n) {
         if (!src) {
                 return NULL;
@@ -44,8 +36,7 @@ char *trim(char *s) {
         return (char *)start;
 }
 
-size_t split_string(const char *s, char ***outTokens,
-                    const char *filteredCharacter) {
+size_t split_string(const char *s, char ***outTokens, char delimiter) {
         if (!outTokens) {
                 return 0;
         }
@@ -66,7 +57,7 @@ size_t split_string(const char *s, char ***outTokens,
         }
 
         while (*p) {
-                while (*p && *p == *filteredCharacter) {
+                while (*p && *p == (unsigned char)delimiter) {
                         p++;
                 }
 
@@ -75,7 +66,7 @@ size_t split_string(const char *s, char ***outTokens,
                 }
 
                 const unsigned char *start = p;
-                while (*p && *p != *filteredCharacter)
+                while (*p && *p != (unsigned char)delimiter)
                         p++;
                 size_t len = (size_t)(p - start);
 
@@ -117,7 +108,7 @@ Tokens getTokens(char *userInput) {
         char *trimmedInput = trim(userInput);
 
         char **tok = NULL;
-        size_t n = split_string(trimmedInput, &tok, " ");
+        size_t n = split_string(trimmedInput, &tok, ' ');
 
         Tokens allTokens = {.tokenCount = n, .tokens = tok};
 
