@@ -125,8 +125,7 @@ int main(void) {
 
                                                 printf("%s is "
                                                        "%s\n",
-                                                       tok.tokens[1],
-                                                       allDirs.tokens[i]);
+                                                       tok.tokens[1], file);
 
                                                 found = 1;
                                                 free(fileDir);
