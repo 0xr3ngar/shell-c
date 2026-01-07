@@ -5,7 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 
-char *find_executable_in_path(const char *command) {
+char *findExecutableInPath(const char *command) {
         if (!command || command[0] == '\0') {
                 return NULL;
         }

@@ -81,7 +81,7 @@ int main(void) {
                                 break;
                         }
 
-                        char *path = find_executable_in_path(tok.tokens[1]);
+                        char *path = findExecutableInPath(tok.tokens[1]);
                         if (path) {
                                 printf("%s is %s\n", tok.tokens[1], path);
                                 free(path);

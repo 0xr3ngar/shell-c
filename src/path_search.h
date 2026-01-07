@@ -21,6 +21,6 @@
  *
  * Note: Caller is responsible for freeing the returned string.
  */
-char *find_executable_in_path(const char *command);
+char *findExecutableInPath(const char *command);
 
 #endif
