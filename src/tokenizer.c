@@ -4,6 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+char *concat(const char *s1, const char *s2) {
+        char *result =
+            malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
+        strcpy(result, s1);
+        strcat(result, s2);
+        return result;
+}
+
 const char *view_from_index(const char *src, size_t n) {
         if (!src) {
                 return NULL;
@@ -36,28 +44,38 @@ char *trim(char *s) {
         return (char *)start;
 }
 
-size_t split_whitespace(const char *s, char ***outTokens) {
-        if (!outTokens)
+size_t split_string(const char *s, char ***outTokens,
+                    const char *filteredCharacter) {
+        if (!outTokens) {
                 return 0;
+        }
+
         *outTokens = NULL;
-        if (!s)
+
+        if (!s) {
                 return 0;
+        }
 
         const unsigned char *p = (const unsigned char *)s;
         size_t cap = 8;
         size_t count = 0;
         char **tokens = (char **)malloc(cap * sizeof(char *));
-        if (!tokens)
+
+        if (!tokens) {
                 return 0;
+        }
 
         while (*p) {
-                while (*p && isspace(*p))
+                while (*p && *p == *filteredCharacter) {
                         p++;
-                if (!*p)
+                }
+
+                if (!*p) {
                         break;
+                }
 
                 const unsigned char *start = p;
-                while (*p && !isspace(*p))
+                while (*p && *p != *filteredCharacter)
                         p++;
                 size_t len = (size_t)(p - start);
 
@@ -99,7 +117,7 @@ Tokens getTokens(char *userInput) {
         char *trimmedInput = trim(userInput);
 
         char **tok = NULL;
-        size_t n = split_whitespace(trimmedInput, &tok);
+        size_t n = split_string(trimmedInput, &tok, " ");
 
         Tokens allTokens = {.tokenCount = n, .tokens = tok};
 
