@@ -2,9 +2,14 @@
 #include "input.h"
 #include "signals.h"
 #include "tokenizer.h"
+#include <dirent.h>
 #include <signal.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 int main(void) {
         setbuf(stdout, NULL);
@@ -68,6 +73,77 @@ int main(void) {
                 case CMD_TYPE: {
                         RootCommand arg2 = parseCommand(tok.tokens[1]);
                         if (arg2 == CMD_UNKNOWN) {
+                                const char *pathEnv = getenv("PATH");
+                                if (pathEnv == NULL) {
+                                        printf("PATH env variable is not "
+                                               "defined\n");
+                                        printf("%s: not found\n",
+                                               tok.tokens[1]);
+                                        break;
+                                }
+
+                                char **dir = NULL;
+
+                                size_t n = split_string(pathEnv, &dir, ":");
+
+                                Tokens allDirs = {.tokenCount = n,
+                                                  .tokens = dir};
+
+                                int found = 0;
+                                for (int i = 0;
+                                     i < allDirs.tokenCount && !found; i++) {
+                                        DIR *dp = opendir(allDirs.tokens[i]);
+                                        if (dp == NULL) {
+                                                perror("Couldn't open the "
+                                                       "directory");
+                                                continue;
+                                        }
+
+                                        struct dirent *ep;
+                                        while ((ep = readdir(dp)) != NULL) {
+                                                int isNameFound = strcmp(
+                                                    ep->d_name, tok.tokens[1]);
+
+                                                if (isNameFound != 0) {
+                                                        continue;
+                                                }
+
+                                                char *fileDir = concat(
+                                                    allDirs.tokens[i], "/");
+
+                                                char *file =
+                                                    concat(fileDir, ep->d_name);
+
+                                                int canExecute =
+                                                    access(file, X_OK);
+
+                                                if (canExecute != 0) {
+                                                        free(fileDir);
+                                                        free(file);
+                                                        continue;
+                                                }
+
+                                                printf("%s is "
+                                                       "%s\n",
+                                                       tok.tokens[1],
+                                                       allDirs.tokens[i]);
+
+                                                found = 1;
+                                                free(fileDir);
+                                                free(file);
+                                                break;
+                                        }
+
+                                        closedir(dp);
+
+                                        if (found) {
+                                                break;
+                                        }
+                                }
+
+                                if (found)
+                                        break;
+
                                 printf("%s: not found\n", tok.tokens[1]);
                                 break;
                         }
