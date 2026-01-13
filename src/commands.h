@@ -21,5 +21,6 @@ typedef struct {
 
 RootCommand parseCommand(char *s);
 void printEcho(char **cmds, size_t size);
+int runCommand(char *path, char **argv);
 
 #endif
