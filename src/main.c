@@ -41,23 +41,26 @@ int main(void) {
 
                 Tokens tok = getTokens(userInput);
 
-                char **args = malloc(sizeof(char *) * (tok.tokenCount - 1));
+                int fullArgC = tok.tokenCount;
+
+                char **args = malloc(sizeof(char *) * (fullArgC + 1));
                 if (!args) {
                         free(userInput);
-                        free(args);
                         freeTokens(&tok);
                         return 1;
                 }
-                for (int i = 1; i < tok.tokenCount; i++) {
-                        args[i - 1] = tok.tokens[i];
+
+                for (int i = 0; i < fullArgC; i++) {
+                        args[i] = tok.tokens[i];
                 }
+                args[fullArgC] = NULL;
 
                 ParsedCommand pc = {
                     .kind = tok.tokenCount == 0 ? CMD_UNKNOWN
                                                 : parseCommand(tok.tokens[0]),
                     .raw = userInput,
                     .cmd = tok.tokenCount == 0 ? NULL : tok.tokens[0],
-                    .argc = tok.tokenCount == 0 ? 0 : tok.tokenCount - 1,
+                    .argc = fullArgC,
                     .args = args,
                 };
 
@@ -66,7 +69,7 @@ int main(void) {
                         stop = 1;
                         break;
                 case CMD_ECHO:
-                        printEcho(pc.args, pc.argc);
+                        printEcho(pc.args + 1, pc.argc - 1);
                         break;
                 case CMD_TYPE: {
                         if (tok.tokenCount < 2) {
@@ -74,26 +77,39 @@ int main(void) {
                                 break;
                         }
 
-                        RootCommand arg2 = parseCommand(tok.tokens[1]);
+                        char *arg = pc.args[1];
+                        RootCommand arg2 = parseCommand(arg);
                         if (arg2 != CMD_UNKNOWN) {
-                                printf("%s is a shell builtin\n",
-                                       tok.tokens[1]);
+                                printf("%s is a shell builtin\n", arg);
                                 break;
                         }
 
-                        char *path = findExecutableInPath(tok.tokens[1]);
+                        char *path = findExecutableInPath(arg);
                         if (path) {
-                                printf("%s is %s\n", tok.tokens[1], path);
+                                printf("%s is %s\n", arg, path);
                                 free(path);
-                        } else {
-                                printf("%s: not found\n", tok.tokens[1]);
-                                free(path);
+                                break;
                         }
 
+                        printf("%s: not found\n", arg);
+                        free(path);
+                        break;
+                }
+                case CMD_UNKNOWN: {
+                        char *cmd = pc.args[0];
+                        char *path = findExecutableInPath(cmd);
+                        if (path) {
+                                runCommand(path, pc.args);
+                                free(path);
+                                break;
+                        }
+
+                        printf("%s: not found\n", cmd);
+                        free(path);
                         break;
                 }
                 default:
-                        printf("%s: command not found\n", userInput);
+                        printf("%s: command not found\n", pc.cmd ? pc.cmd : "");
                         break;
                 }
 
