@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 int main(void) {
         setbuf(stdout, NULL);
@@ -71,6 +72,16 @@ int main(void) {
                 case CMD_ECHO:
                         printEcho(pc.args + 1, pc.argc - 1);
                         break;
+                case CMD_PWD: {
+                        char *cwd = getcwd(NULL, 0);
+                        if (cwd) {
+                                printf("%s\n", cwd);
+                                free(cwd);
+                                break;
+                        }
+                        printf("pwd: getcwd: %s\n", cwd);
+                        break;
+                }
                 case CMD_TYPE: {
                         if (tok.tokenCount < 2) {
                                 printf("type: missing argument\n");

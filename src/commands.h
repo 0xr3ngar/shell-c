@@ -7,6 +7,7 @@ typedef enum {
         CMD_EXIT,
         CMD_ECHO,
         CMD_TYPE,
+        CMD_PWD,
         CMD_COUNT,
         CMD_UNKNOWN = -1
 } RootCommand;

@@ -5,7 +5,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-static const char *COMMANDS[CMD_COUNT] = {"exit", "echo", "type"};
+static const char *COMMANDS[CMD_COUNT] = {"exit", "echo", "type", "pwd"};
 
 RootCommand parseCommand(char *s) {
         if (s == NULL) {
