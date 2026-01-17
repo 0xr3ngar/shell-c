@@ -3,6 +3,7 @@
 #include "path_search.h"
 #include "signals.h"
 #include "tokenizer.h"
+#include <errno.h>
 #include <signal.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -84,7 +85,7 @@ int main(void) {
                         }
 
                         if (chdir(path) == -1) {
-                                perror("cd");
+                                printf("cd: %s: %s\n", path, strerror(errno));
                                 break;
                         }
 
