@@ -72,6 +72,24 @@ int main(void) {
                 case CMD_ECHO:
                         printEcho(pc.args + 1, pc.argc - 1);
                         break;
+                case CMD_CD: {
+                        const char *path =
+                            (pc.argc < 2 || strcmp(pc.args[1], "~") == 0)
+                                ? getenv("HOME")
+                                : pc.args[1];
+
+                        if (!path) {
+                                printf("cd: HOME not set\n");
+                                break;
+                        }
+
+                        if (chdir(path) == -1) {
+                                perror("cd");
+                                break;
+                        }
+
+                        break;
+                }
                 case CMD_PWD: {
                         char *cwd = getcwd(NULL, 0);
                         if (cwd) {

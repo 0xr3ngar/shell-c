@@ -8,6 +8,7 @@ typedef enum {
         CMD_ECHO,
         CMD_TYPE,
         CMD_PWD,
+        CMD_CD,
         CMD_COUNT,
         CMD_UNKNOWN = -1
 } RootCommand;
